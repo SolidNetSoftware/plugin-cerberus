@@ -1,0 +1,74 @@
+<?php
+echo $this->Html->ifSet($message);
+
+  $add_button = [
+    [
+      'icon' => 'fa fa-plus',
+      'name' => $this->_("cerberus.admin.departments.button.create", true),
+      'attributes' => [
+        'title' => $this->_("cerberus.admin.departments.button.create", true),
+        'href' => $this->Html->safe($base_url_dept_add)
+      ]
+    ]
+  ];
+
+
+if(empty($error)):
+$this->Widget->clear();
+$this->Widget->setLinkButtons($add_button);
+$this->Widget->create($this->_("cerberus.admin.departments.title", true), array('id'=>"admin_department"), $this->Html->ifSet($render_section, null));
+?>
+<div class="inner">
+<table class="table" id="departments">
+    <tbody>
+        <tr class="heading_row">
+            <td>
+                <span>
+                    <a href="<?php echo $this->Html->safe($base_url_dept . "?sort=name&order=" . ($sort == "name" ? $negate_order : $order));?>" 
+                       class="ajax<?php echo $this->Html->safe($sort == "name" ? " " . $order : "");?>">
+                        <?php $this->_("cerberus.admin.departments.title.name");?>
+                    </a>
+                </span>
+            </td>
+            <td>
+                <span>
+                    <a href="<?php echo $this->Html->safe($base_url_dept . "?sort=description&order=" . ($sort == "description" ? $negate_order : $order));?>" 
+                       class="ajax<?php echo $this->Html->safe($sort == "description" ? " " . $order : "");?>">
+                           <?php $this->_("cerberus.admin.departments.title.description");?>
+                    </a>
+                </span>
+            </td>
+            <td class="last"><span>Options</span></td>
+        </tr>
+        
+        <?php foreach($departments as $dept): ?>
+        <tr class="expand department_staff">
+            <td><?php echo $this->Html->_($dept->name); ?></td>
+            <td><?php echo $this->Html->ifSet($dept->description); ?></td>
+            <td class="last">
+                <a href="<?php echo sprintf($base_url_dept_edit, $dept->id); ?>"><?php $this->_("cerberus.admin.departments.button.edit");?></a>,
+                <?php
+                $this->Form->create($this->Html->ifSet($base_url_dept_delete));
+                $this->Form->fieldHidden("id", $this->Html->ifSet($dept->id));
+                ?>
+                <a href="<?php echo $base_url_dept_delete; ?>" class="manage" rel="<?php echo sprintf($this->_("cerberus.admin.departments.delete.confirm", true), $dept->name);?>"><?php echo $this->_("cerberus.admin.departments.delete", true);?></a>
+                <?php
+                $this->Form->end();
+                ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+</div>
+
+<?php $this->Widget->end(); ?>
+
+
+<script>
+    $(document).ready(function(){
+       $('#departments a.manage[rel]').blestaModalConfirm({base_url: '<?php echo $this->base_uri; ?>', close: 'close', submit: true}); 
+    });
+</script>
+
+<?php endif; ?>

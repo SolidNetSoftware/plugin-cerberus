@@ -1,0 +1,164 @@
+<?php
+    $fieldBegin = '<div class="form-group">';
+    $fieldEnd   = '</div>';
+?>
+<?php  foreach ($fields as $field) : ?>
+            <?php
+            if (in_array($field->type, $ignoredFieldTypes)) {
+                continue;
+            }
+            ?>
+    
+            <?php
+            
+            $required_field = false;
+            $required_star = '';
+            if(isset($field->required) && $field->required === true)
+            {
+                $required_field = true;
+                $required_star = '<span style="color:red;">*</span>';
+            }
+            switch($field->type)
+            {
+                /*
+                 * TEXT INTEGER REGEXP DECIMAL
+                 */
+                case 'U':
+                case 'S':
+                case 'N':
+                    echo $fieldBegin;
+                    $attributes = array(
+                        'id'          => $this->Html->safe('custom_'.$field->id),
+                        'class'       => 'form-control',
+                        'placeholder' => $this->Html->_($field->name, true),
+                    );
+                    if($required_field === true)
+                    {
+                        $attributes['required'] = $required_field;
+                    }
+                    echo '<label for="'.$this->Html->safe('custom_'.$field->id).'">'.$this->Html->safe($field->name).$required_star.'</label>';
+                    $this->Form->fieldText($this->Html->safe('custom_'.$field->id), $this->Html->ifSet($vars[$field->id]), $attributes);         
+                    echo $fieldEnd;
+                    
+                break;
+                
+                /*
+                 * DATE
+                 */
+                case 'E':
+                    
+                    echo $fieldBegin;
+                    $attributes = array(
+                        'id'          => $this->Html->safe('custom_'.$field->id),
+                        'type'        => 'date',
+                        'class'       => 'form-control', 
+                        'placeholder' => $this->Html->_($field->name, true),
+                    );
+                    if($required_field === true)
+                    {
+                        $attributes['required'] = $required_field;
+                    }
+                    echo '<label for="'.$this->Html->safe('custom_'.$field->id).'">'.$this->Html->safe($field->name).$required_star.'</label>';
+                    $this->Form->fieldText($this->Html->safe('custom_'.$field->id), $this->Html->ifSet($vars[$field->id]), $attributes);
+                    echo $fieldEnd;
+                    
+                break;
+
+                /*
+                 * CHECKBOX
+                 */
+                case 'C':
+                    
+                    echo $fieldBegin;
+                    $attributes = array(
+                        'id' => $this->Html->safe('custom_'.$field->id),
+                    );
+                    if($required_field === true)
+                    {
+                        $attributes['required'] = $required_field;
+                    }
+                    $this->Form->fieldCheckbox($this->Html->safe('custom_'.$field->id), 1, $this->Html->ifSet($vars[$field->id]), $attributes);
+                    echo '<label for="'.$this->Html->safe('custom_'.$field->id).'">'.$this->Html->safe($field->name).$required_star.'</label>';
+                    if ('' != $field->name) {
+                        echo '&nbsp;<small>(' . $this->Html->safe($field->name) . ')</small>';
+                    }
+                    echo $fieldEnd;
+                    
+                break;
+                
+                
+                case 'X':
+                    
+                    echo $fieldBegin;
+                    $attributes = array(
+                        'id' => $this->Html->safe('custom_'.$field->id.'[]'),
+                    );
+                    if($required_field === true)
+                    {
+                        $attributes['required'] = $required_field;
+                    }
+                    $this->Form->label($this->Html->safe($field->name), $this->Html->safe('custom_'.$field->id.'[]'));
+                    
+                    echo "<div class='multiple-checkbox-cerb'>";
+                    foreach ($field->options as $key => $cfo) {
+                        $this->Form->fieldCheckbox($this->Html->safe('custom_'.$field->id.'[]'), $cfo, $this->Html->ifSet($vars[$field->id]), $attributes);
+                        if ('' != $field->name) {
+                            echo '<span style="margin-right:10px;">'.$this->Html->safe($cfo).'</span>';
+                        }
+                    }
+                    echo "</div>";
+                break;
+                
+                /*
+                 * SELECT
+                 */
+                case 'D':
+                    
+                    $options = array();
+                    foreach ($field->params->options as $key => $cfo) {
+                        $options[$cfo] = $cfo;
+                    }
+                    
+                    echo $fieldBegin;
+                    echo '<label for="'.$this->Html->safe('custom_'.$field->id).'">'.$this->Html->safe($field->name).$required_star.'</label>';
+                    if ('' != $field->name) {
+                        echo '&nbsp;<small>(' . $this->Html->safe($field->name) . ')</small>';
+                    }
+                    $this->Form->fieldSelect($this->Html->safe('custom_'.$field->id), $options, $this->Html->ifSet($vars[$field->id]), array(
+                        'id'          => $this->Html->safe('custom_'.$field->id), 
+                        'class'       => 'form-control'
+                    ));
+                    if($required_field === true)
+                    {
+                        $attributes['required'] = $required_field;
+                    }
+                    echo $fieldEnd;
+                    
+                break;
+                
+                /*
+                 * TEXTAREA
+                 */
+                case 'T':
+                    
+                    echo $fieldBegin;
+                    $attributes = array(
+                        'id'          => $this->Html->safe('custom_'.$field->id),
+                        'rows'        => 3,
+                        'class'       => 'form-control',
+                        'placeholder' => $this->Html->_($field->name, true),
+                    );
+                    if($required_field === true)
+                    {
+                        $attributes['required'] = $required_field;
+                    }
+                    echo '<label for="'.$this->Html->safe('custom_'.$field->id).'">'.$this->Html->safe($field->name).$required_star.'</label>';
+                    $this->Form->fieldTextarea($this->Html->safe('custom_'.$field->id), $this->Html->ifSet($vars[$field->id]), $attributes);
+                    echo $fieldEnd;
+                    
+                break;
+       
+            }
+            ?>
+
+    <?php endforeach; ?>

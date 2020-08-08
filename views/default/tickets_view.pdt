@@ -1,0 +1,311 @@
+<style>
+    table.table tbody tr{
+        border-top:1px solid #ddd!important;
+    }
+</style>
+<div class="col-md-12">
+    <?php
+    echo $this->Html->ifSet($message);
+    
+    if(!empty($ticket->id)){
+    $this->WidgetClient->clear();
+    $this->WidgetClient->setStyleSheet($this->view_dir . 'css/styles.css', ['id' => 'cerberus_styles']);
+    $this->WidgetClient->create($this->_('cerberus.client.ticket.header', true) . ' ' . $ticket->mask . ' - ' . $ticket->subject);
+    $this->WidgetClient->startBody();
+    ?>
+
+<ul class="nav nav-tabs">
+	<li role="presentation" class="active"><a href="#"><?php $this->_('cerberus.client.ticket.tab.info'); ?></a></li>
+</ul>
+
+    <table class="table">
+        <tbody>
+			<tr>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.subject'); ?>: </strong></td>
+                <td colspan="3"><?php $this->Html->_($ticket->subject); ?></td>
+			</tr>
+			<tr>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.created_by'); ?>: </strong></td>
+                <td colspan="3"><?php echo $this->Html->_($ticket->initial_message_sender_email); ?></td>
+			</tr>
+			<tr>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.participants'); ?>: </strong></td>
+                <td colspan="3"><?php foreach($ticket->requesters as $participant) : ?> 
+                    <?php 
+                    $name  = $participant->name;
+                    $email = $participant->email;
+                    if(!empty($name)) {
+                       $email = " <$email>"; 
+                    }
+                    ?>
+                    <span class="label label-primary"><?php echo $this->Html->_($name); echo $this->Html->_($email); ?></span>
+                    <?php endforeach; ?>
+                </td>
+			</tr>
+		</tbody>
+	</table>
+    <table class="table">
+        <tbody>
+			<tr>
+                <?php
+                    $serviceExists = true;
+                    if(empty($service) || !property_exists($service, 'id')) $serviceExists = false;
+
+
+                ?>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.index.title.mask'); ?>: </strong></td>
+                <td colspan="<?php echo ($serviceExists ? "1" : "3"); ?>"><?php $this->Html->_($ticket->mask); ?></td>
+                <?php if($serviceExists) : ?>
+<?php
+$service_class= in_array($this->Html->ifSet($service->status), ['suspended', 'canceled']) ? 'danger' : ($this->Html->ifSet($service->status) == 'active' ? 'success' : 'warning');
+
+if(empty($service->name))
+    $service_name = $service->package->names[0]->name;
+else
+    $service_name = $service->name;
+?>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.service'); ?>: </strong></td>
+                <td colspan="1">
+<span class="label btn-<?php echo $this->Html->_($service_class); ?> btn-xs"><?php echo $this->Html->_($service->status); ?></span>
+<a href="<?php echo $this->Html->_($this->base_uri); ?>services/manage/<?php echo $this->Html->_($service->id); ?>/"><?php echo $this->Html->_($service_name); ?></a>
+                </td>
+                <?php endif; ?>
+			</tr>
+            <tr> 
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.group'); ?>: </strong></td>
+                <td colspan="1"><?php $this->Html->_($ticket->group_name); ?> - <?php $this->Html->_($ticket->bucket_name); ?></td>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.status'); ?>: </strong></td>
+                <td colspan="1"><span class="label <?php echo $this->Html->_($ticket->status_label); ?>"><?php echo $this->Html->_($ticket->status); ?></span></td>
+            </tr>
+            <tr>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.created'); ?>: </strong></td>
+                <td colspan="1"><?php echo $this->Date->cast($this->Html->ifSet($ticket->created), Configure::get('cerberus.message_date_format'));?></td>
+                <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.updated'); ?>: </strong></td>
+                <td colspan="1"><?php echo $this->Date->cast($this->Html->ifSet($ticket->updated), Configure::get('cerberus.message_date_format'));?></td>
+            </tr>
+		</tbody>
+	</table>
+    <table class="table">
+        <tbody>
+            <?php $tr = 0; ?>
+            <?php
+                if(isset($ticket->fields)) foreach ($ticket->fields as $field) : 
+            ?>
+            <?php $tr++; if($tr == 0): ?>
+            <tr>
+            <?php endif; ?>    
+                <td colspan="2">
+                    <strong><?php $this->Html->_($field['name']); ?>: </strong>
+                    <?php
+                    if ('C' == $field['type']) {
+                        echo ($field['value']) ? $this->_('cerberus.yes') : $this->_('cerberus.no');
+                    }
+                    elseif ('U' == $field['type']) {
+                        echo '<a href="'.$field['value'].'" target="_blank">'.$field['value'].'</a>';
+                    }
+                    elseif ('F' == $field['type']) {
+                        echo '<a download="'.$field['value']['name'].'" href="'.$field['value']['link'].'">'.$field['value']['name'].'</a>';
+                    }
+                    elseif ('I' == $field['type']) {
+                        foreach($field['value'] as $file)
+                        {
+                            echo '<a download="'.$file['name'].'" href="'.$file['link'].'">'.$file['name'].'</a> ';
+                        }
+                    }
+                    elseif (is_object($field['value'])) {
+                        $ii = 0;
+                        foreach ($field['value'] as $v)
+                        {
+                            if($ii == 0)
+                            {
+                                echo $v;
+                            }
+                            else
+                            {
+                               echo ', '.$v; 
+                            }
+                            $ii++;
+                        }
+                    }
+                    elseif ('E' == $field['type']) {
+                        echo date('Y-m-d H:i:s', $field['value']);
+                    }
+                    else {
+                        echo ($field['value']) ? $this->Html->_($field['value']) : '-';
+                    }
+                    ?>
+                </td>
+            <?php if($tr == 2): ?>    
+            </tr>
+            <?php $tr = 0; endif; ?>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+  
+
+
+
+
+    <?php if ($ticket->status == 'deleted') : ?>
+    <div class="alert alert-warning">
+        <p><?php $this->_('cerberus.client.ticket.message.deleted'); ?></p>
+	</div>
+    <?php elseif ( !empty(Configure::get('cerberus.readonly.groups.ids')) && in_array($ticket->bucket_group_id, Configure::get('cerberus.readonly.groups.ids')) ): ?>
+    <div class="alert alert-warning">
+        <p><?php $this->_('cerberus.client.ticket.message.archived'); ?></p>
+	</div>
+    <?php else: ?>
+    
+    <?php $this->Form->create($base_url_tkt_reply . $ticket->mask, array('id' => "response_ticket", 'enctype' => "multipart/form-data")); ?>
+    <div class="form-group">
+            <?php
+            $this->Form->label($this->_('cerberus.client.ticket.message.reply', true), 'message');
+            $this->Form->fieldTextarea('message', null, array(
+                'id'          => 'message', 
+                'rows'        => 8,
+                'class'       => 'form-control ticket-message-reply',
+                'required'    => 'required',
+                'placeholder' => $this->_('cerberus.client.ticket.message.placeholder', true),
+            ));
+            ?>
+    </div>
+    
+    <div id="file_attachment" class="form-group" style="width: 40%; float: left">
+        <?php
+        $this->Form->fieldFile('attachments[]', array(
+            'class'     => 'martop5',
+        ));
+        ?>
+        <a id="add_attachment_field" style="display:block;margin-top:10px;" href="#"><i class="fa fa-plus-circle"></i> Add Attachment</a>
+    </div>
+    <div id="form_buttons" style="width: 40%; float: right; padding-top: 13px;">
+        <div class="btn-group pull-right">
+            <button type="submit" class="btn btn-default" value="reply" name="action">
+                <i class="fa fa-reply"></i> <?php $this->_('cerberus.client.ticket.button.reply');?>
+            </button>
+            <?php if ($ticket->status != 'closed') : ?>
+            <button type="submit" class="btn btn-danger" id="close-btn" value="close" data-modal="confirm" name="action">
+                <i class="fa fa-times fa-fw"></i> <?php $this->_('cerberus.client.ticket.button.close');?>
+            </button>
+            <?php endif; ?>
+        </div>
+    </div>
+    <?php
+    $this->Form->end();
+    ?>
+    <?php endif; ?>
+
+    <div class="clearfix"></div>
+    <br />
+    <hr />
+
+
+    <div class="ticketmsgs">
+    <?php 
+        foreach ($messages as $num=>$reply) : 
+    ?>
+
+
+    <div class="row ticket-reply">
+        <div class="col-md-12 top-bar<?php echo ($this->Html->ifSet($reply->worker_id) != false ? ' staff-reply' : '');?>">
+            <div>
+            <?php if($reply->worker_id != false) : ?>
+            <span class="label label-primary">Staff</span> &nbsp;
+            <?php echo $this->Html->safe($reply->worker_full_name); ?> &lt;<?php echo $this->Html->safe($reply->sender_email); ?>&gt;
+            <?php else: ?>
+            <span class="label label-default">Client</span> &nbsp;
+            <?php echo $this->Html->safe($reply->headers->from); ?>
+            <?php endif; ?> 
+                <div style="float:right">
+                <?php echo $this->Date->cast($this->Html->ifSet($reply->created), Configure::get('cerberus.message_date_format')); ?>
+                </div>
+            </div>        
+        </div>  
+        <?php   
+        // Show attachments
+        if (!empty($reply->attachments)) {
+        ?>      
+        <div class="col-md-12 attachments<?php echo ($this->Html->ifSet($reply->worker_id) != false ? ' staff' : '');?>">
+            <div class="row">
+                <div class="col-md-4">
+                <p><strong>Attachments: </strong></p>
+                </div>
+            </div>
+            <?php
+            foreach ($reply->attachments as $attachment) {
+            ?>
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-10">
+                    <a href="<?php echo $this->Html->safe($base_url_tkt_atchs . $ticket->mask . '/'. $this->Html->ifSet($attachment->id) );?>" target="_blank"><i class="fa fa-paperclip"></i> <?php $this->Html->_($attachment->file_name);?></a>
+                    <i>(<?php echo $this->Html->_($attachment->file_size_human); ?>)</i>
+                </div>
+            </div>
+            <?php
+            }
+            ?>
+            <br />
+        </div>
+        <?php
+        }
+        ?> 
+        <div class="col-md-12 response<?php echo ($this->Html->ifSet($reply->worker_id) != false ? ' staff' : '');?>">
+            <div class="ticket-message">
+<?php echo $this->Html->hyperlink($this->Html->safe($this->Html->ifSet($reply->content))); ?>
+                </div>
+            </div>  
+        </div>
+
+
+    <?php endforeach; ?>
+    </div>
+    
+    <?php
+    $this->WidgetClient->endBody();
+    $this->WidgetClient->end();
+    ?>
+    
+</div>
+<div id="close-ticket" class="modal fade" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title"><?php $this->_('cerberus.client.ticket.button.close');?></h4>
+      </div>
+      <div class="modal-body">
+        <p><?php $this->_('cerberus.client.ticket.message.close');?></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal"><?php $this->_('cerberus.client.ticket.button.cancel');?></button>
+        <button type="button" class="btn btn-primary" data-act="close-ticket"><?php $this->_('cerberus.client.ticket.button.close');?></button>
+      </div>
+    </div>
+  </div>
+    <?php } ?>
+</div>
+<script>
+    $(document).ready(function(){
+        $('body').on('click', 'a.download-attachment', function(e){
+            e.preventDefault();
+            $(this).prev('i').prev('form').submit();
+        });
+        $('body').on('click','#response_ticket button[data-modal="confirm"]', function(e){
+            $('#close-ticket').modal('show');
+            return false;
+        });
+        $('body').on('click', 'button[data-act="close-ticket"]', function(){
+            $('textarea#message').removeAttr('required');
+            $('#response_ticket button[data-modal="confirm"]').removeAttr("data-modal");
+            $('#response_ticket button[value="close"]').click();
+        });
+    }); 
+</script>
+<script>
+    $(document).ready(function(){
+       $('body').on('click', '#add_attachment_field', function(e){
+           e.preventDefault();
+           $('<input style="margin-top:5px;" name="attachments[]" class="martop5" type="file">').insertBefore(this);
+       });
+    });
+</script>

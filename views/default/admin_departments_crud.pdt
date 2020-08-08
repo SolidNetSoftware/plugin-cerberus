@@ -1,0 +1,184 @@
+<?php
+echo $this->Html->ifSet($message);
+if(empty($error)):
+$this->Widget->clear();
+$this->Widget->create($widgetText, array('id' => "admin_departments_add"), null);
+?>
+
+<div class="inner">
+    <?php $this->Form->create(null, ['id'=>'department']);?>
+	<div class="pad">
+            <ul>
+		<li>
+            <?php
+                $this->Form->label($this->_('cerberus.admin.departments.title.name', true), 'name');
+                $this->Form->fieldText('name', $this->Html->ifSet($savedValues->name), ['id' => 'name']);
+            ?>
+		</li>
+		<li>
+            <?php
+                $this->Form->label($this->_('cerberus.admin.departments.title.description', true), 'description');
+                $this->Form->fieldTextarea('description', $this->Html->ifSet($savedValues->description), ['id' => 'description']);
+            ?>
+		</li>	
+        <li>
+            <?php
+                $this->Form->label($this->_('cerberus.admin.departments.title.group', true), 'group');
+            ?>
+                    <select class="group" name="group">
+                        <?php foreach($groups_buckets as $group): ?>
+                            <option <?php if( isset($savedValues) && property_exists($savedValues, 'group') && $group['groupid'] == $savedValues->{'group'}) : ?>selected<?php endif; ?> value="<?php echo $group['groupid'] ?>"><?php echo $group['groupname'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+		</li>
+		<li>
+                <?php
+                    $this->Form->label($this->_('cerberus.admin.departments.title.bucket', true), 'bucket');
+                ?>
+                    <select class="bucket" name="bucket">
+                        <?php foreach($groups_buckets as $group): ?>
+                            <?php foreach($group['buckets'] as $bucket): ?>
+                                <option <?php if( isset($savedValues) && property_exists($savedValues, 'bucket') && $bucket['bucketid'] == $savedValues->bucket) : ?>selected<?php endif;?> data-group-id="<?php echo $group['groupid'] ?>" value="<?php echo $bucket['bucketid'] ?>"><?php echo $bucket['bucketname'] ?></option>
+                            <?php endforeach; ?>
+                        <?php endforeach; ?>
+                    </select>
+		</li>
+            </ul>
+            
+            <table class="table" id="custom_fields">
+                <tbody>
+                    <tr class="heading_row">
+                        <td><span><?php $this->_("cerberus.admin.departments.title.custom_field"); ?></span></th>
+                        <td><span><?php $this->_("cerberus.admin.departments.title.default"); ?></span></th>
+                        <td><span><?php $this->_("cerberus.admin.departments.title.visible"); ?></span></th>
+                        <td><span><?php $this->_("cerberus.admin.departments.title.required"); ?></span></th>
+                    </tr>
+                   
+                    <?php
+                        $cfValues = null; 
+                        if(isset($savedValues) && property_exists($savedValues, 'custom_fields')) {
+                            $cfValues = json_decode($savedValues->custom_fields);
+                        }
+                    ?>
+                    <?php foreach($custom_fields->results as $key => $cf):
+                                                //if( !(in_array($cf->{'type'}, $ignoreFields) || $cf->{'name'} == 'service_id' || $cf{'name'} == 'contact_id') ):
+                                                if( !(in_array($cf->{'type'}, $ignoreFields) || $cf->{'name'} == 'service_url' || $cf->{'name'} == 'client_url') ):
+                                                switch ($cf->{'type'}){
+                                                    case 'C': 
+                                                        $cf->{'type'} = 'Checkbox';
+                                                    break;
+
+                                                    case 'E': 
+                                                        $cf->{'type'} = 'Date';
+                                                    break;
+
+                                                    case 'F': 
+                                                        $cf->{'type'} = 'File';
+                                                    break;
+
+                                                    case 'I': 
+                                                        $cf->{'type'} = 'Multiple File';
+                                                    break;
+
+                                                    case 'X': 
+                                                        $cf->{'type'} = 'Multiple Checkboxes';
+                                                    break;
+
+                                                    case 'N': 
+                                                        $cf->{'type'} = 'Number';
+                                                    break;
+
+                                                    case 'D': 
+                                                        $cf->{'type'} = 'Dropdown';
+                                                    break;
+
+                                                    case 'L': 
+                                                        $cf->{'type'} = 'Record Link';
+                                                    break;
+
+                                                    case 'T': 
+                                                        $cf->{'type'} = 'Multiple Lines';
+                                                    break;
+
+                                                    case 'S': 
+                                                        $cf->{'type'} = 'Single Line';
+                                                    break;
+
+                                                    case 'U': 
+                                                        $cf->{'type'} = 'URL';
+                                                    break;
+
+                                                    case 'W': 
+                                                        $cf->{'type'} = 'Worker';
+                                                    break;
+
+                                                    default :
+                                                        $cf->{'type'} = 'Undefinded';
+                                                    break;
+                                                }
+
+                                            ?>
+                                            <tr class="expand">
+                                                <td><?php echo $cf->{'type'}; ?></td>
+                                                <td><?php echo $cf->{'name'}; ?></td>
+
+<td><input type="checkbox" <?php if(!empty($cfValues) && property_exists($cfValues, $cf->id)): ?>checked<?php endif;?> name="customfields[<?php echo $cf->id; ?>]" value="1"></td>
+                                                
+<td><input type="checkbox" <?php if(!empty($cfValues) && property_exists($cfValues, $cf->id) && $cfValues->{$cf->id}): ?>checked<?php elseif (!(empty($cfValues)) && !property_exists($cfValues, $key) || empty($cfValues)): ?>disabled<?php endif;?> name="required_customfield[<?php echo $cf->id; ?>]" value="1"></td>
+                                            </tr>
+
+                                            <?php endif; endforeach; ?>
+                                            <?php if(empty($customfields)): ?>
+                                                <tr class="expand">
+                                                    <td colspan="4"><?php $this->_('cerberus.admin.departments.title.no_custom_fields', true); ?> </td>
+                                                </tr>
+                                            <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="button_row">
+            <?php $this->Form->fieldSubmit('add-department', $widgetText, ['class' => 'btn btn-primary pull-right']); ?>
+        </div>
+	<?php $this->Form->end();?>
+</div>
+
+<?php
+$this->Widget->end();
+?>
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+        $('select.group').each(function() {
+            var groupid = $($(this)).val();
+            var bucket = $($(this)).parent('li').parent('ul').find('.bucket');
+            bucket.find('option').hide();
+            bucket.find('option[data-group-id="'+groupid+'"]').show();
+        });
+        
+        $('body').on('click', 'select.group', function(){
+            var groupid = $($(this)).val();
+            var bucket = $($(this)).parent('li').parent('ul').find('.bucket');
+            bucket.find('option').hide();
+            bucket.find('option[data-group-id="'+groupid+'"]').show();
+            bucket.find('option[data-group-id="'+groupid+'"]').attr('selected','selected');
+        });
+        
+        $('body').on('click', 'input[name*="customfields"]', function(){
+           var val = $(this).is(":checked");
+           var name = $(this).attr('name');
+           var name = name.substring(name.lastIndexOf("[")+1,name.lastIndexOf("]"));
+           
+           if(val == false)
+           {
+               $('input[name="required_customfield['+name+']"]').prop('disabled', true);
+               $('input[name="required_customfield['+name+']"]').prop('checked', false);
+           }
+           else
+           {
+               $('input[name="required_customfield['+name+']"]').prop('disabled', false);
+           }
+        });
+    });    
+</script>
+<?php endif; ?>

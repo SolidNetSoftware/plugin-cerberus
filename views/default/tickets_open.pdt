@@ -1,0 +1,189 @@
+<?php 
+
+    if(isset($departments)) : 
+?>
+
+        <div class="col-md-12">
+
+        <?php 
+        echo $this->Html->ifSet($message); ?>
+
+        <?php 
+            $this->WidgetClient->clear();
+            $this->WidgetClient->create($this->_('cerberus.client.department.title', true));
+            $this->WidgetClient->startBody();
+        ?>
+            <div class="row">
+                
+        <?php 
+            if(!empty($departments)):
+                foreach($departments as $department): 
+        ?>
+	        
+	                <div class="col-md-6">
+                            <div class="list-group">
+		                <a href="<?php echo $this->Html->safe($base_url_tkt_open); echo $department->id; ?>/" class="list-group-item">
+                                    <h4><?php echo $department->name; ?></h4>
+                                    <p><?php echo nl2br($department->description); ?></p>
+                                </a>
+                            </div>
+	                </div>
+
+        <?php 
+                endforeach; 
+            else: 
+        ?>
+                    <div class="alert alert-warning alert-dismissible fade in" role="alert" style="margin: 10px;"> 
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> 
+                        <?php $this->_('cerberus.client.department.message.404');?>
+                    </div>
+        <?php 
+            endif; 
+        ?>
+            </div>
+        <?php $this->WidgetClient->endBody(); $this->WidgetClient->end(); ?>
+        </div>
+
+
+<?php 
+    else: 
+?>
+
+
+        <div class="col-md-12">
+        <?php
+        $this->WidgetClient->clear();
+        $this->WidgetClient->create($this->_('cerberus.client.index.button.create', true));
+        $this->WidgetClient->startBody();
+        ?>
+            
+          
+            <?php if(empty($services)): ?>
+                <div class="alert alert-warning alert-dismissible fade in" role="alert" style="margin-bottom: 10px;"> 
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button> 
+                    <?php $this->_('cerberus.client.department.message.no_services');?>
+                </div>
+            <?php endif; ?>
+            
+            
+        <?php $this->Form->create(null, array('id'=>"create_ticket", 'enctype' => "multipart/form-data")); ?>
+            <div class="form-group">
+                <?php
+                $this->Form->label($this->_('cerberus.client.department.title.name', true), 'name');
+                $this->Form->fieldText('name', trim($this->Html->_($contact->first_name, true) . ' ' . $this->Html->_($contact->last_name, true)), array(
+                    'readonly'    => true, 
+                    'id'          => 'name', 
+                    'class'       => 'form-control', 
+                    'placeholder' => $this->_('cerberus.client.department.title.name', true)
+                ));
+                ?>
+            </div>
+
+            <div class="form-group">
+                <?php
+                $this->Form->label($this->_('cerberus.client.department.title.email', true), 'email');
+                $this->Form->fieldText('email', $this->Html->ifSet($contact->email), array(
+                    'readonly'    => true, 
+                    'id'          => 'email', 
+                    'class'       => 'form-control', 
+                    'placeholder' => $this->_('cerberus.client.department.title.email', true)
+                ));
+                ?>
+            </div>
+
+            <input type="hidden" name="department" value="<?php echo $department_id; ?>">
+            
+            
+            <?php if(!empty($services)): ?>
+                <div class="form-group">
+                    <?php
+                    $this->Form->label($this->_('cerberus.client.department.title.service', true), 'services');
+                    ?>
+
+                    <select name="service_id" id="services" class="form-control">
+<?php
+if(count($services) > 1) :
+?>
+                        <option selected="true" disabled="disabled"><?php $this->_('cerberus.client.department.title.select-service'); ?></option>
+<?php
+endif;
+?>
+                    <?php
+                    foreach($services as $service) {
+                    ?>
+                        <option value="<?php echo $service->id; ?>">[<?php $this->Html->_($service->status); ?>] <?php $this->Html->_($service->name); ?> - <?php $this->Html->_($service->package->name); ?></option>
+                    <?php
+                    }
+                    //$this->Form->fieldSelect('service_id', $services, $this->Html->ifSet($vars['services']), array(
+                    //    'id'          => 'services', 
+                    //    'class'       => 'form-control', 
+                    //));
+                    ?>
+                    </select>
+                </div>
+            <?php endif; ?>
+                
+            <div class="form-group">
+                <?php
+                $this->Form->label($this->_('cerberus.client.department.title.subject', true), 'subject');
+                $this->Form->fieldText('subject', $this->Html->ifSet($vars['subject']), array(
+                    'id'          => 'subject', 
+                    'class'       => 'form-control', 
+                    'required'    => true, 
+                    'placeholder' => $this->_('cerberus.client.department.title.subject', true)
+                ));
+                ?>
+            </div>
+           
+           <div class="customfields">
+               <?php echo $cf_to_form; ?>
+           </div>
+           
+            
+            <div class="form-group">
+                <?php
+                $this->Form->label($this->_('cerberus.client.department.title.message', true), 'message');
+                $this->Form->fieldTextarea('message', $this->Html->ifSet($vars['message']), array(
+                    'id'          => 'message', 
+                    'rows'        => 10, 
+                    'class'       => 'form-control', 
+                    'placeholder' => $this->_('cerberus.client.department.title.message', true),
+                    'required'    => true,
+                ));
+                ?>
+            </div>
+            
+            <?php if ($allow_attachments) : ?>
+                <div id="file_attachment" class="form-group">
+                    <?php
+                    //$this->Form->label($this->_('ClientTickets.add.field_attachments', true) . implode(', ', $allowedFileExtensions), 'attachments');
+                    $this->Form->fieldFile('attachments[]', array(
+                        'class'     => 'martop5',
+                    ));
+                    ?>
+                </div>
+                <a id="add_attachment_field" href="#"><i class="fa fa-plus-circle"></i> Add Attachment</a>
+            <?php endif; ?>
+            
+            <button type="submit" class="btn btn-default pull-right"<?php if(empty($department_id) || empty($services)): ?> disabled<?php endif; ?>>
+                <i class="fa fa-plus-circle"></i> <?php $this->_('cerberus.client.index.button.create');?>
+            </button>
+
+        <?php $this->Form->end(); ?>
+            
+        <?php 
+            $this->WidgetClient->endBody(); 
+            $this->WidgetClient->end(); 
+        ?>
+        </div>
+
+        <script>
+            $(document).ready(function(){
+               $('body').on('click', '#add_attachment_field', function(e){
+                   e.preventDefault();
+                   $('#file_attachment').append('<input style="margin-top:5px;" name="attachments[]" class="martop5" type="file">');
+               });
+            });
+        </script>
+
+<?php endif; ?>

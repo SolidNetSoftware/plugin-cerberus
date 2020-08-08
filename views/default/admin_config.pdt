@@ -1,0 +1,65 @@
+<?php
+echo $this->Html->ifSet($message);
+
+if(empty($error)):
+?>
+
+<?php
+$this->Widget->clear();
+$this->Widget->create(  $this->_('cerberus.admin.config.api', true), 
+                        array('id'=>"admin_config"), 
+                        $this->Html->ifSet($render_section, null)
+                     );
+?>
+<div class="inner">
+<?php $this->Form->create($base_url_config_create, array('id' => "config_create", 'enctype' => "multipart/form-data")); ?>
+<?php $this->Form->fieldHidden('id', $this->Html->ifSet($cerberusConfig->id)); ?>
+    <div class="pad">
+        <ul>
+            <li>
+                <?php
+                $this->Form->label($this->_("cerberus.admin.config.api.url", true), "cerberusURL");
+                $this->Form->fieldText("cerberus_url", $this->Html->ifSet($cerberusConfig->cerberus_url), array('id' => "cerberus_url"));
+                ?>
+            </li>
+            <li>
+                <?php
+                $this->Form->label($this->_("cerberus.admin.config.api.key", true), "cerberus_secret_key");
+                $this->Form->fieldText("cerberus_secret_key", $this->Html->ifSet($cerberusConfig->cerberus_secret_key), array('id' => "cerberus_secret_key"));
+                ?>
+            </li>
+            <li>
+                <?php
+                $this->Form->label($this->_("cerberus.admin.config.api.secret", true), "cerberus_shared_secret");
+                $this->Form->fieldText("cerberus_shared_secret", $this->Html->ifSet($cerberusConfig->cerberus_shared_secret), array('id' => "cerberus_shared_secret"));
+                ?>
+            </li>
+            <li>
+                <?php
+                $this->Form->fieldCheckbox('sort_descending', 1, $this->Html->ifSet($cerberusConfig->sort_descending), array('id' => 'sort_descending'));
+                $this->Form->label($this->_('cerberus.config.ticket.sort', true), 'sort_descending');
+                ?>
+            </li>
+            <li>
+                <?php
+                $this->Form->fieldCheckbox('attachments_allowed', 1, $this->Html->ifSet($cerberusConfig->attachments_allowed), array('id' => 'attachments_allowed'));
+                $this->Form->label($this->_('cerberus.config.ticket.attachments', true), 'attachments_allowed');
+                ?>
+            </li>
+ 
+        </ul>
+    </div>
+
+    <div class="button_row">
+        <?php $this->Form->fieldSubmit('api-config', $this->_('cerberus.admin.config.api.save', true), ['class' => 'btn btn-primary pull-right']); ?>
+    </div>
+ 
+<?php
+$this->Form->end();
+?>
+</div>
+<?php
+$this->Widget->end(); 
+?>
+
+<?php endif; ?>

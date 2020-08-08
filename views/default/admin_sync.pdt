@@ -1,0 +1,66 @@
+<?php
+echo $this->Html->ifSet($message);
+
+if(empty($error)):
+?>
+
+<?php
+$this->Widget->clear();
+$this->Widget->create($this->_('cerberus.admin.navbar.sync', true), array('id'=>"admin_sync"), $this->Html->ifSet($render_section, null));
+?>
+<div class="inner">
+<?php $this->_('cerberus.admin.sync.info', false); ?>
+<br /><br />
+<?php $this->Form->create($base_url_sync_create, array('id' => "sync_create", 'enctype' => "multipart/form-data")); ?>
+<?php $this->Form->fieldSubmit('create-sync', $this->_('cerberus.admin.sync.button.create', true), array('class' => 'btn btn-primary')); ?>
+<?php
+$this->Form->end();
+?>
+</div>
+<?php
+$this->Widget->end(); 
+?>
+
+<?php
+$this->Widget->clear();
+$this->Widget->create($this->_('cerberus.admin.sync.jobs', true), array('id'=>"admin_sync_jobs"), $this->Html->ifSet($render_section, null));
+?>
+<div class="inner">
+<table class="table" id="departments">
+    <tbody>
+        <tr class="heading_row">
+            <td>
+                <?php $this->_('cerberus.admin.sync.created');?>
+            </td>
+            <td>
+                <?php $this->_('cerberus.admin.sync.updated');?>
+            </td>
+            <td>
+                <?php $this->_('cerberus.admin.sync.status');?>
+            </td>
+            <td>
+                <?php $this->_('cerberus.admin.sync.completed');?>
+            </td>
+            <td>
+                <?php $this->_('cerberus.admin.sync.total');?>
+            </td>
+        </tr>
+       
+        <?php 
+        foreach($sync_jobs as $job): ?>
+        <tr class="expand department_staff">
+            <td><?php echo $this->Date->cast($this->Html->ifSet($job->date_created), Configure::get('cerberus.message_date_format')); ?></td>
+            <td><?php echo $this->Date->cast($this->Html->ifSet($job->date_updated), Configure::get('cerberus.message_date_format')); ?></td>
+            <td><?php echo $job->status; ?></td>
+            <td><?php echo $job->completed; ?></td>
+            <td><?php echo $job->total; ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+</div>
+
+<?php $this->Widget->end(); ?>
+
+
+<?php endif; ?>

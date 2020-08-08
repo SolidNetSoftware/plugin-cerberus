@@ -1,0 +1,118 @@
+<?php
+echo $this->Html->ifSet($message);
+$links = array(
+    array(
+        'name'       => $this->_('cerberus.client.index.title.open', true) . ' <span>(' . $this->Html->_($ticket_count['open'], true) . ')</span>',
+        'current'    => ($this->Html->ifSet($status) == 'open' ? true : false),
+        'attributes' => array(
+            'href'  => $base_url_tkt . 'open/',
+            'class' => 'ajax'
+        )),
+    array(
+        'name'       => $this->_('cerberus.client.index.title.closed', true) . ' <span>(' . $this->Html->_($ticket_count['closed'], true) . ')</span>',
+        'current'    => ($this->Html->ifSet($status) == 'closed' ? true : false),
+        'attributes' => array(
+            'href'  => $base_url_tkt . 'closed/',
+            'class' => 'ajax'
+        ))
+);
+
+$buttons = array(
+    array(
+        'name'=>$this->_('cerberus.client.index.button.create', true), 
+        'attributes'=>array("href"=>$this->Html->safe($base_url_tkt_open)))
+);
+
+?>
+<?php
+
+$this->WidgetClient->clear();
+$this->WidgetClient->setLinks($links);
+$this->WidgetClient->setLinkButtons($buttons);
+$this->WidgetClient->create($this->_('cerberus.client.widget.title', true), array('id' => "client_tickets"), $this->Html->ifSet($render_section, null));
+$this->WidgetClient->startBody();
+?>
+
+<div class="table-responsive">
+    <table class="table table-curved table-striped" id="tickets">
+        <thead>
+            <tr>
+                <th>
+                    <a href="<?php echo $this->Html->safe($base_url_tkt . $this->Html->ifSet($status) . "/?sort=mask&order=" . ($sort == 'mask' ? $negate_order : $order));?>"
+                        class="ajax<?php echo $this->Html->safe($sort == 'mask' ? ' ' . $order : '');?>">
+                        <?php $this->_('cerberus.client.index.title.mask');?>
+                    </a>
+                </th>
+                <th>
+                    <a href="<?php echo $this->Html->safe($base_url_tkt . $this->Html->ifSet($status) . "/?sort=bucket_id&order=" . ($sort == 'bucket_id' ? $negate_order : $order));?>"
+                        class="ajax<?php echo $this->Html->safe($sort == 'bucket_id' ? ' ' . $order : '');?>">
+                        <?php $this->_('cerberus.client.index.title.department');?>
+                    </a>
+                </th>
+                <th>
+                    <a href="<?php echo $this->Html->safe($base_url_tkt . $this->Html->ifSet($status) . "/?sort=updated&order=" . ($sort == 'updated' ? $negate_order : $order));?>"
+                        class="ajax<?php echo $this->Html->safe($sort == 'updated' ? ' ' . $order : '');?>">
+                        <?php $this->_('cerberus.client.index.title.updated');?>
+                    </a>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach($tickets->results as $ticket): ?>
+            <tr>
+                <td valign="middle" colspan="3" style="background-color:<?php echo $this->Html->safe($colors[$ticket->status]); ?>;"><?php echo $this->Html->safe($ticket->subject); ?></td>
+            </tr>
+            <tr>
+                <td>
+                    <a href="<?php echo $base_url_tkt_view . $this->Html->safe($ticket->mask) . '/'; ?>">
+                        <?php echo $ticket->mask; ?>
+                    </a>
+                </td>
+                <td><?php echo $ticket->group_name . ' - ' . $ticket->bucket_name; ?></td>
+                <td><?php echo $this->Html->safe($ticket->_updatedHuman); /*date('Y-m-d', $v->updated);*/ ?></td>
+            </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+<?php
+    $this->WidgetClient->endBody();
+    if ($this->Pagination->hasPages())
+    {
+        $this->WidgetClient->startFooter();
+        $this->Pagination->build();
+        $this->WidgetClient->endFooter();
+    }
+   $this->WidgetClient->end();
+?>
+
+<?php
+// Don't show this container when only rendering the widget section
+if (!$this->Html->ifSet($render_section)) {
+?>
+
+<!-- Ticket Legend -->
+<?php
+    $this->WidgetClient->clear();
+    $this->WidgetClient->create($this->_('cerberus.client.index.title.legend', true), ['id' => 'ticket_legend'],  null);
+    $this->WidgetClient->startBody();
+?>
+
+<table class="table table-curved table-striped">
+    <tbody>
+        <tr>
+            <td style="background-color:<?php echo $this->Html->safe($colors['waiting']); ?>; border-style: solid; border-color: #CCC; border-width: 1px;">&nbsp;</td>
+            <td><?php $this->_('cerberus.client.index.title.client_response');?></td>
+            <td style="background-color:<?php echo $this->Html->safe($colors['open']); ?>; border-style: solid; border-color: #CCC; border-width: 1px;">&nbsp;</td>
+            <td><?php $this->_('cerberus.client.index.title.staff_response');?></td>
+        </tr>
+    </tbody>
+</table>
+<?php
+    $this->WidgetClient->endBody();
+    $this->WidgetClient->end();
+?>
+<!-- End Ticket Legend -->
+<?php
+}
+?>

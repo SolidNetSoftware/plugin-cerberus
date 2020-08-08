@@ -1,0 +1,33 @@
+<div class="table-responsive">
+
+<?php 
+    $this->WidgetClient->clear();
+    $this->WidgetClient->create($this->_('cerberus.client.widget.title', true));
+    $this->WidgetClient->startBody();
+?>
+    <div class="row">
+        
+<?php
+    foreach($count as $status => $value): 
+?>
+	
+	<div class="col-md-6">
+            <div class="list-group text-center">
+                <a href="<?php echo $this->Html->safe($base_url); echo $this->Html->safe($status); ?>/" class="list-group-item">
+                    <h1><?php echo $value ?></h1>
+                    <small>
+                        <?php if     ($status == "open")    echo $this->_('cerberus.client.dashboard.open', true);
+                              elseif ($status == "waiting") echo $this->_('cerberus.client.dashboard.waiting', true);
+                        ?>
+                    </small>
+                </a>
+            </div>
+	</div>
+
+<?php endforeach; ?>
+    </div>
+<?php 
+    $this->WidgetClient->endBody(); 
+    $this->WidgetClient->end(); 
+?>
+</div>

@@ -48,6 +48,74 @@ class CerberusTickets extends CerberusModel {
         return $output;
     }
 
+    // with parser function
+    public function createTicket($emailTo, $contact, $attachments, $customFields, $department, $org_id, $subject, $message)
+    {
+        $postfields = [
+			['message', $this->createRawTicket($emailTo, $contact->email, $contact->first_name, $contact->last_name, $attachments, $subject, $message)]
+        ];
+
+        $output = array();
+        $response = $this->getCerb()->post(self::CERB_URI_TKT_CREATE, $postfields);
+        $this->jsonReader($response, $output);
+
+		$ticket_id = $output->id;
+		$this->updateTicket($ticket_id, $department->group, $department->bucket, $org_id, $customFields);
+		return $output->mask;
+    }
+
+    public function updateTicket($ticket_id, $group, $bucket, $org_id, array $customFields = array())
+	{
+        $postfields = [
+			['fields[bucket_id]', $bucket],
+			['fields[group_id]', $group],
+			['fields[org_id]', $org_id],
+			['fields[status_id]', 0] // open
+        ];
+        if(!empty($customFields))
+            $postfields = array_merge($postfields, $customFields);
+
+        $output = array();
+        $response = $this->getCerb()->put(sprintf(self::CERB_URI_TKT, $ticket_id), $postfields);
+        $this->jsonReader($response, $output);
+	}
+
+    // with tickets/compose function
+    /*
+    public function createTicket($emailTo, $contact, $attachments, $customFields, $department, $org_id, $subject, $message)
+    {
+        $postfields = [
+            ['group_id', $department->group],
+            ['bucket_id', $department->bucket],
+            ['status', 'o'],
+            ['subject', $subject],
+            ['org_id', $org_id],
+            ['to', $contact->email],
+            ['dont_send', 1],
+            ['content', $message]
+        ];
+        foreach($customFields as $field)
+            array_push($postfields, $field);
+
+
+        $output = array();
+        $response = $this->getCerb()->post(self::CERB_URI_TKT_CREATE, $postfields);
+        $this->jsonReader($response, $output);
+
+        $ticket_id = $output->id;
+        echo "<pre>";
+        print_r($postfields);
+        print_r($output);
+        echo "</pre>";
+        exit;
+        //$message_id = $this->addTicketMessage($ticket_id, $emailTo, $contact->email, $contact->first_name, $contact->last_name, $subject, $message);
+        //$this->addMessageAttachments($message_id, $attachments);
+		return $output->mask;
+    }
+    */
+
+    /*
+    // with records/ticket/create function
     public function createTicket($emailTo, $contact, $attachments, $customFields, $department, $org_id, $subject, $message)
     {
         $postfields = [
@@ -70,7 +138,7 @@ class CerberusTickets extends CerberusModel {
         $message_id = $this->addTicketMessage($ticket_id, $emailTo, $contact->email, $contact->first_name, $contact->last_name, $subject, $message);
         $this->addMessageAttachments($message_id, $attachments);
 		return $output->mask;
-    }
+    }*/
 
     public function addTicketMessage($ticket_id, $emailTo, $emailFrom, $first_name, $last_name, $subject, $message)
     {
@@ -258,6 +326,29 @@ class CerberusTickets extends CerberusModel {
 
         return $ret;
 
+    }
+
+
+    private function createRawTicket($emailTo, $email, $firstName, $lastName, array $attachments, $subject, $message, array $headers = array())
+    {
+        $mailer = $this->getPHPMailer();
+        $mailer->setFrom($email, $firstName . ' ' . $lastName);
+        $mailer->addAddress($emailTo);
+        $mailer->Subject = $subject;
+        $mailer->isHTML(false);
+        $mailer->Body = $message;
+        $mailer->CharSet = 'utf-8';
+
+        foreach($attachments as $attachment)
+            $mailer->addAttachment($attachment['tmp_name'], $attachment['name'], 'base64', $attachment['type']);
+
+        foreach($headers as $name => $value)
+            if(!empty($value))  $mailer->addCustomHeader($name, $value);
+
+		$mailer->CreateHeader();
+		$mailer->CreateBody();
+        $mailer->preSend();
+        return $mailer->getSentMIMEMessage();
     }
 
 }

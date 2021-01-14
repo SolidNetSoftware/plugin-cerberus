@@ -14,7 +14,7 @@ class CerberusTickets extends CerberusModel {
 
         $query = http_build_query([
             'q'         => "mask:$ticket_mask org.id:$org_id",
-            'expand'    => 'bucket_,group_,custom_,latest_message_,bucket_replyto_,group_replyto_,initial_message_sender_,requesters,requester_emails',
+            'expand'    => 'bucket_,group_,custom_,latest_message_,bucket_replyto_,group_replyto_,initial_message_sender_,requesters,requester_emails,latest_message_headers',
         ]);
 
         $output = array();
@@ -174,12 +174,34 @@ class CerberusTickets extends CerberusModel {
         }
     }
 
+    public function addReply($ticket_id, $in_reply_to, $email_to, $contact, array $attachments, $subject, $message)
+    {
+        $headers = [];
+        foreach(['In-Reply-To', 'References'] as $key)
+            $headers[$key] = $in_reply_to;
+
+        $postfields = [
+            ['message', $this->createRawTicket($email_to, $contact->email, $contact->first_name,
+                $contact->last_name, $attachments, $subject, $message, $headers)]
+        ];
+
+        $output = array();
+        $response = $this->getCerb()->post(self::CERB_URI_TKT_CREATE, $postfields);
+        $this->jsonReader($response, $output);
+
+        $ticket_id = $output->id;
+        $this->changeTicketStatus($ticket_id, 'o');
+    }
+
+    /*
+    // Old method for records
     public function addReply($ticket_id, $emailTo, $contact, array $attachments, $subject, $message)
     {
         $message_id = $this->addTicketMessage($ticket_id, $emailTo, $contact->email, $contact->first_name, $contact->last_name, $subject, $message);
         $this->changeTicketStatus($ticket_id, 'o');
         $this->addMessageAttachments($message_id, $attachments);
     }
+     */
 
     public function changeTicketStatus($ticket_id, $status = 'c' /* close */)
     {
@@ -335,6 +357,7 @@ class CerberusTickets extends CerberusModel {
         $mailer->setFrom($email, $firstName . ' ' . $lastName);
         $mailer->addAddress($emailTo);
         $mailer->Subject = $subject;
+        $mailer->XMailer = 'Blesta Cerb Plugin (https://docs.solidnet.software/p/blesta-cerb/)';
         $mailer->isHTML(false);
         $mailer->Body = $message;
         $mailer->CharSet = 'utf-8';

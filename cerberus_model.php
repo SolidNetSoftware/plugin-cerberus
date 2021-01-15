@@ -17,7 +17,7 @@ class CerberusModel extends AppModel {
     const CERB_URI_ORG_CREATE   = 'records/org/create'          . self::CERB_RESPONSE_FORMAT;
 
     const CERB_URI_TKT          = 'records/ticket/%d'           . self::CERB_RESPONSE_FORMAT;
-    const CERB_URI_TKT_CREATE   = 'records/ticket/create'       . self::CERB_RESPONSE_FORMAT;
+    const CERB_URI_TKT_CREATE   = 'parser/parse'                . self::CERB_RESPONSE_FORMAT;
     const CERB_URI_TKT_SEARCH   = 'records/ticket/search'       . self::CERB_RESPONSE_FORMAT;
     const CERB_URI_MSG_SEARCH   = 'records/message/search'      . self::CERB_RESPONSE_FORMAT;
     const CERB_URI_MSG_CREATE   = 'records/message/create'      . self::CERB_RESPONSE_FORMAT;
@@ -38,6 +38,7 @@ class CerberusModel extends AppModel {
     protected $protectedProperties  = array();
 
     private $_cerb = null;
+    private $_phpMailer = null;
 
     public function __construct()
     {
@@ -45,12 +46,13 @@ class CerberusModel extends AppModel {
         Configure::load('cerberus', dirname(__FILE__) . DS . 'config' . DS);
         Language::loadLang('cerberus', null, dirname(__FILE__) . DS . 'language' . DS);
         Loader::load(dirname(__FILE__) . DS . "vendors" . DS . "cerberus"  . DS . "cerberus.php");
+        Loader::load(dirname(__FILE__) . DS . "vendors" . DS . "PHPMailer" . DS . "class.phpmailer.php");
         Loader::loadComponents($this, ['Record']);
     }
 
     public function getCerb()
     {
-        if(empty($_cerb)) $this->getCerbConnection();
+        if(empty($this->_cerb)) $this->getCerbConnection();
 
         return $this->_cerb;
     }
@@ -60,6 +62,18 @@ class CerberusModel extends AppModel {
         Loader::loadModels($this, array('Cerberus.CerberusConfig'));
         $server = $this->CerberusConfig->get();
         $this->_cerb = new Cerberus($server->cerberus_url, $server->cerberus_secret_key, $server->cerberus_shared_secret);
+    }
+
+    public function getPHPMailer()
+    {
+        if(empty($this->_phpMailer)) $this->createPHPMailer();
+
+        return $this->_phpMailer;
+    }
+
+    private function createPHPMailer()
+    {
+        $this->_phpMailer = new PHPMailer(true);
     }
 
     protected function getValue($model)

@@ -424,16 +424,17 @@ class Tickets extends CerberusController
             $this->flashMessage('notice', sprintf(Language::_('cerberus.client.tickets.message.closed', true), $ticket_mask));
         } else if ($this->post['action'] == 'reply') {
 
-            $ticket_subject = 'Re: ' . $ticket->results[0]->subject;
+            $ticket_subject = sprintf('Re: [#%s] %s', $ticket_mask, $ticket->results[0]->subject);
             if(property_exists($ticket->results[0], 'bucket_replyto_email'))
                 $reply_to = $ticket->results[0]->bucket_replyto_email;
             else
                 $reply_to = $ticket->results[0]->group_replyto_email;
 
             $message_id = $ticket->results[0]->latest_message_id;
+            $in_reply_to = $ticket->results[0]->latest_message_headers->{"message-id"};
 
             $attachments = $this->checkAndValidateAttachments($this->files);
-            $this->CerberusTickets->addReply($ticket_id, $reply_to, $this->contact, $attachments, $ticket_subject, $this->post['message']);
+            $this->CerberusTickets->addReply($ticket_id, $in_reply_to, $reply_to, $this->contact, $attachments, $ticket_subject, $this->post['message']);
 
             $this->flashMessage('notice', Language::_('cerberus.client.ticket.message.reply-added', true));
         }

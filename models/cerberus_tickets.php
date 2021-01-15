@@ -48,7 +48,6 @@ class CerberusTickets extends CerberusModel {
         return $output;
     }
 
-    // with parser function
     public function createTicket($emailTo, $contact, $attachments, $customFields, $department, $org_id, $subject, $message)
     {
         $postfields = [
@@ -80,100 +79,6 @@ class CerberusTickets extends CerberusModel {
         $this->jsonReader($response, $output);
 	}
 
-    // with tickets/compose function
-    /*
-    public function createTicket($emailTo, $contact, $attachments, $customFields, $department, $org_id, $subject, $message)
-    {
-        $postfields = [
-            ['group_id', $department->group],
-            ['bucket_id', $department->bucket],
-            ['status', 'o'],
-            ['subject', $subject],
-            ['org_id', $org_id],
-            ['to', $contact->email],
-            ['dont_send', 1],
-            ['content', $message]
-        ];
-        foreach($customFields as $field)
-            array_push($postfields, $field);
-
-
-        $output = array();
-        $response = $this->getCerb()->post(self::CERB_URI_TKT_CREATE, $postfields);
-        $this->jsonReader($response, $output);
-
-        $ticket_id = $output->id;
-        echo "<pre>";
-        print_r($postfields);
-        print_r($output);
-        echo "</pre>";
-        exit;
-        //$message_id = $this->addTicketMessage($ticket_id, $emailTo, $contact->email, $contact->first_name, $contact->last_name, $subject, $message);
-        //$this->addMessageAttachments($message_id, $attachments);
-		return $output->mask;
-    }
-    */
-
-    /*
-    // with records/ticket/create function
-    public function createTicket($emailTo, $contact, $attachments, $customFields, $department, $org_id, $subject, $message)
-    {
-        $postfields = [
-            ['fields[group_id]', $department->group],
-            ['fields[bucket_id]', $department->bucket],
-            ['fields[status]', 'o'],
-            ['fields[subject]', $subject],
-            ['fields[org_id]', $org_id],
-            ['fields[participants]', $contact->email]
-        ];
-        foreach($customFields as $field)
-            array_push($postfields, $field);
-
-
-        $output = array();
-        $response = $this->getCerb()->post(self::CERB_URI_TKT_CREATE, $postfields);
-        $this->jsonReader($response, $output);
-
-		$ticket_id = $output->id;
-        $message_id = $this->addTicketMessage($ticket_id, $emailTo, $contact->email, $contact->first_name, $contact->last_name, $subject, $message);
-        $this->addMessageAttachments($message_id, $attachments);
-		return $output->mask;
-    }*/
-
-    public function addTicketMessage($ticket_id, $emailTo, $emailFrom, $first_name, $last_name, $subject, $message)
-    {
-        $headers = $this->createEmailHeaders($emailTo, $emailFrom, $first_name, $last_name, $subject);
-        $postfields = [
-            ['fields[headers]', $headers],
-            ['fields[is_outgoing]', '0'],
-            ['fields[sender]', $emailFrom],
-            ['fields[ticket_id]', $ticket_id],
-            ['fields[content]', $message]
-        ];
-        $output = array();
-        $response = $this->getCerb()->post(self::CERB_URI_MSG_CREATE, $postfields);
-        $this->jsonReader($response, $output);
-
-        $message_id = $output->id;
-        return $message_id;
-    }
-
-    public function addMessageAttachments($message_id, $attachments)
-    {
-        foreach($attachments as $attachment)
-        {
-            $postfields = [
-                ['fields[attach][]', "message:$message_id"],
-                ['fields[name]', $attachment['name']],
-                ['fields[mime_type]', $attachment['type']],
-                ['fields[content]', "data:{$attachment['type']};base64,".base64_encode(file_get_contents($attachment['tmp_name']))]
-            ];
-            $output = array();
-            $response = $this->getCerb()->post(self::CERB_URI_ATM_CREATE, $postfields);
-            $this->jsonReader($response, $output);
-        }
-    }
-
     public function addReply($ticket_id, $in_reply_to, $email_to, $contact, array $attachments, $subject, $message)
     {
         $headers = [];
@@ -193,16 +98,6 @@ class CerberusTickets extends CerberusModel {
         $this->changeTicketStatus($ticket_id, 'o');
     }
 
-    /*
-    // Old method for records
-    public function addReply($ticket_id, $emailTo, $contact, array $attachments, $subject, $message)
-    {
-        $message_id = $this->addTicketMessage($ticket_id, $emailTo, $contact->email, $contact->first_name, $contact->last_name, $subject, $message);
-        $this->changeTicketStatus($ticket_id, 'o');
-        $this->addMessageAttachments($message_id, $attachments);
-    }
-     */
-
     public function changeTicketStatus($ticket_id, $status = 'c' /* close */)
     {
         $date = $this->Date->toTime(date("c"));
@@ -216,30 +111,6 @@ class CerberusTickets extends CerberusModel {
         $output = new stdClass();
         $response = $this->getCerb()->put(sprintf(self::CERB_URI_TKT, $ticket_id), $postfields);
         $this->jsonReader($response, $output);
-    }
-
-    private function createEmailHeaders($emailTo, $emailFrom, $first_name, $last_name, $subject)
-    {
-        $date = sprintf("Date: %s\r\n", date('D, j M Y H:i:s O'));
-        $from = sprintf("From: %s %s <%s>\r\n", $first_name, $last_name, $emailFrom);
-        $message_id = sprintf("Message-ID: <%s@%s>\r\n", md5(uniqid(time())), $this->getServerHostname());
-        $x_mailer = "X-Mailer: Blesta Cerb Helpdesk\r\n";
-        $mine = "MIME-Version: 1.0\r\n";
-        $content = "Content-Type: text/plain; charset=utf-8\r\n";
-        $to = sprintf("To: %s\r\n", $emailTo);
-        $subject = sprintf("Subject: %s\r\n", $subject);
-
-        return $date . $from . $message_id . $x_mailer . $mine . $content . $to . $subject;
-    }
-
-    private function getServerHostname()
-    {
-        if (isset($_SERVER) && array_key_exists('SERVER_NAME', $_SERVER) && !empty($_SERVER['SERVER_NAME']))
-            return $_SERVER['SERVER_NAME'];
-        elseif (gethostname() !== false)
-            return gethostname();
-
-        return 'localhost.localdomain';
     }
 
     public function getTicketList($org_id, $status, $page, $sort, $order)
@@ -349,7 +220,6 @@ class CerberusTickets extends CerberusModel {
         return $ret;
 
     }
-
 
     private function createRawTicket($emailTo, $email, $firstName, $lastName, array $attachments, $subject, $message, array $headers = array())
     {

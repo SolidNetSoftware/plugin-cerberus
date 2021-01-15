@@ -17,8 +17,6 @@ class CerberusModel extends AppModel {
     const CERB_URI_ORG_CREATE   = 'records/org/create'          . self::CERB_RESPONSE_FORMAT;
 
     const CERB_URI_TKT          = 'records/ticket/%d'           . self::CERB_RESPONSE_FORMAT;
-    //const CERB_URI_TKT_CREATE   = 'records/ticket/create'       . self::CERB_RESPONSE_FORMAT;
-    //const CERB_URI_TKT_CREATE   = 'tickets/compose'             . self::CERB_RESPONSE_FORMAT;
     const CERB_URI_TKT_CREATE   = 'parser/parse'                . self::CERB_RESPONSE_FORMAT;
     const CERB_URI_TKT_SEARCH   = 'records/ticket/search'       . self::CERB_RESPONSE_FORMAT;
     const CERB_URI_MSG_SEARCH   = 'records/message/search'      . self::CERB_RESPONSE_FORMAT;

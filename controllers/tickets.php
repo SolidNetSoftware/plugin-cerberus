@@ -58,9 +58,9 @@ class Tickets extends CerberusController
             'Cerberus.CerberusGroups'
         ));
 
-        if (!isset($this->Clients)) {
-            $this->uses(array('Clients'));
-        }
+        if (!isset($this->Clients)) $this->uses(['Clients']);
+        if (!isset($this->Contacts)) $this->uses(['Contacts']);
+
         $this->client  = $this->Clients->get($this->Session->read('blesta_client_id'), false);
         $this->contact = $this->Contacts->getByUserId($this->Session->read('blesta_id'), $this->Session->read('blesta_client_id'));
         if(empty($this->contact)) $this->contact  = $this->Clients->get($this->Session->read('blesta_client_id'));
@@ -110,7 +110,7 @@ class Tickets extends CerberusController
         $this->set('ticket_count', $ticket_count);
 
         // get tickets for this specific page and query
-        $tickets = $this->CerberusTickets->getTicketList($org_id, $status, $page, $sort, $order);
+        $tickets = $this->CerberusTickets->getTicketList($org_id, $status, $page, $sort, $order, Configure::get('Blesta.pagination_client')['results_per_page']);
         foreach($tickets->results as $ticket) {
             $ticket->_updatedHuman = $this->timeSince($ticket->updated);
         }
@@ -119,7 +119,6 @@ class Tickets extends CerberusController
         $paginationConfig = array_merge(
             Configure::get('Blesta.pagination_client'),
             [
-                'results_per_page' => 10,
                 'total_results' => $ticket_count_pagination,
                 'uri' => $this->getURL(self::PLUGIN_BASE_TKT) . $status . '/[p]/',
                 'params' => ['sort' => $sort, 'order' => $order]

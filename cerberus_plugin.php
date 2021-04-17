@@ -253,7 +253,7 @@ class CerberusPlugin extends Plugin
             // admin area
             [
                 'action' => 'nav_primary_staff',
-                'uri' => 'plugin/cerberus/admin_departments/index/',
+                'uri' => 'plugin/cerberus/admin/index/',
                 'name' => Language::_('cerberus.admin.navbar.title', true),
                 'options' => [
                     'sub' => [

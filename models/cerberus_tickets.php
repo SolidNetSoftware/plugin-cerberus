@@ -113,7 +113,7 @@ class CerberusTickets extends CerberusModel {
         $this->jsonReader($response, $output);
     }
 
-    public function getTicketList($org_id, $status, $page, $sort, $order)
+    public function getTicketList($org_id, $status, $page, $sort, $order, $limit = 20)
     {
         $status_value   = '0'; // 0=open, 1=waiting, 2=closed, 3=deleted
         if      ($status == 'open'   || $status == 'waiting') $status_value = '[o,w]';
@@ -123,7 +123,7 @@ class CerberusTickets extends CerberusModel {
         if($order == 'desc') $orderBy = "-"; // DESC
 
         $query = http_build_query([
-            'q'         => "org.id:$org_id status:$status_value limit:10 page:$page sort:{$orderBy}{$sort}",
+            'q'         => "org.id:$org_id status:$status_value limit:$limit page:$page sort:{$orderBy}{$sort}",
             'expand'    => "bucket_,group_"
         ]);
 

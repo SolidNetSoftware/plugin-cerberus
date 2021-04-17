@@ -38,7 +38,7 @@
                        $email = " <$email>"; 
                     }
                     ?>
-                    <span class="label label-primary"><?php echo $this->Html->_($name); echo $this->Html->_($email); ?></span>
+                    <span class="badge badge-primary"><?php echo $this->Html->_($name); echo $this->Html->_($email); ?></span>
                     <?php endforeach; ?>
                 </td>
 			</tr>
@@ -210,10 +210,10 @@ else
         <div class="col-md-12 top-bar<?php echo ($this->Html->ifSet($reply->worker_id) != false ? ' staff-reply' : '');?>">
             <div>
             <?php if($reply->worker_id != false) : ?>
-            <span class="label label-primary">Staff</span> &nbsp;
+            <span class="badge badge-primary">Staff</span> &nbsp;
             <?php echo $this->Html->safe($reply->worker_full_name); ?> &lt;<?php echo $this->Html->safe($reply->sender_email); ?>&gt;
             <?php else: ?>
-            <span class="label label-default">Client</span> &nbsp;
+            <span class="badge badge-secondary">Client</span> &nbsp;
             <?php echo $this->Html->safe($reply->headers->from); ?>
             <?php endif; ?> 
                 <div style="float:right">

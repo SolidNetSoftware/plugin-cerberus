@@ -48,7 +48,7 @@ $this->Widget->create($this->_('cerberus.admin.sync.jobs', true), array('id'=>"a
        
         <?php 
         foreach($sync_jobs as $job): ?>
-        <tr class="expand department_staff">
+        <tr class="department_staff">
             <td><?php echo $this->Date->cast($this->Html->ifSet($job->date_created), Configure::get('cerberus.message_date_format')); ?></td>
             <td><?php echo $this->Date->cast($this->Html->ifSet($job->date_updated), Configure::get('cerberus.message_date_format')); ?></td>
             <td><?php echo $job->status; ?></td>

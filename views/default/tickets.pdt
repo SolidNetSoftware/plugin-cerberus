@@ -1,21 +1,21 @@
 <?php
 echo $this->Html->ifSet($message);
-$links = array(
-    array(
-        'name'       => $this->_('cerberus.client.index.title.open', true) . ' <span>(' . $this->Html->_($ticket_count['open'], true) . ')</span>',
+$links = [
+    [
+        'name'       => $this->_('cerberus.client.index.title.open', true) . ' <span class="badge">' . $this->Html->_($ticket_count['open'], true) . '</span>',
         'current'    => ($this->Html->ifSet($status) == 'open' ? true : false),
-        'attributes' => array(
+        'attributes' => [
             'href'  => $base_url_tkt . 'open/',
             'class' => 'ajax'
-        )),
-    array(
-        'name'       => $this->_('cerberus.client.index.title.closed', true) . ' <span>(' . $this->Html->_($ticket_count['closed'], true) . ')</span>',
+        ]],
+    [
+        'name'       => $this->_('cerberus.client.index.title.closed', true) . ' <span class="badge">' . $this->Html->_($ticket_count['closed'], true) . '</span>',
         'current'    => ($this->Html->ifSet($status) == 'closed' ? true : false),
-        'attributes' => array(
+        'attributes' => [
             'href'  => $base_url_tkt . 'closed/',
             'class' => 'ajax'
-        ))
-);
+        ]]
+];
 
 $buttons = array(
     array(
@@ -24,12 +24,13 @@ $buttons = array(
 );
 
 ?>
+<div class="col-md-12">
 <?php
 
 $this->WidgetClient->clear();
 $this->WidgetClient->setLinks($links);
 $this->WidgetClient->setLinkButtons($buttons);
-$this->WidgetClient->create($this->_('cerberus.client.widget.title', true), array('id' => "client_tickets"), $this->Html->ifSet($render_section, null));
+$this->WidgetClient->create($this->_('cerberus.client.widget.title', true), ['id' => "client_tickets"], $this->Html->ifSet($render_section, null));
 $this->WidgetClient->startBody();
 ?>
 
@@ -86,6 +87,8 @@ $this->WidgetClient->startBody();
    $this->WidgetClient->end();
 ?>
 
+</div>
+<div class="col-md-12">
 <?php
 // Don't show this container when only rendering the widget section
 if (!$this->Html->ifSet($render_section)) {
@@ -113,6 +116,7 @@ if (!$this->Html->ifSet($render_section)) {
     $this->WidgetClient->end();
 ?>
 <!-- End Ticket Legend -->
+</div>
 <?php
 }
 ?>

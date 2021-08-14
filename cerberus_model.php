@@ -103,7 +103,7 @@ class CerberusModel extends AppModel {
 
         foreach ($model as $property => $propertyValue) {
             $finalName = $toLower ? strtolower($property) : $property;
-            if (array_key_exists($finalName, $values) && !in_array(strtolower($property), $this->protectedProperties))
+            if (property_exists($values, $finalName) && !in_array(strtolower($property), $this->protectedProperties))
                 if(in_array($property, $model->encryptedProperties))
                     if($encrypt)    $model->$property = $this->systemEncrypt($values->{$finalName});
                     else            $model->$property = $this->systemDecrypt($values->{$finalName});

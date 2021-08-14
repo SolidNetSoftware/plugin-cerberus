@@ -185,11 +185,17 @@ class Tickets extends CerberusController
                 'App.Services'
             ));
 
+
+            // Format services to array for fieldSelect
+            $services = [];
+            foreach($this->Services->getAllByClient($this->client->id, 'all') as $service)
+                $services[$service->id] = sprintf("[%s] %s - %s", $this->Html->_($service->status, true), $this->Html->_($service->name, true), $this->Html->_($service->package->name, true));
+
             $this->setVariables(array(
                 'departments'       => null,
                 'department_id'     => $department_id,
                 'contact'           => $this->contact,
-                'services'          => $this->Services->getAllByClient($this->client->id, 'all'),
+                'services'          => $services,
                 'cf_to_form'        => $this->getConfiguredFields($department_id),
                 'allow_attachments' => $this->CerberusConfig->get()->attachments_allowed,
                 'allowedFileExtensions' => $this->allowedFileExtensions,

@@ -18,9 +18,8 @@ Configure::set('cerberus.tktCustomFieldName.service_url', 'service_url');
 
 Configure::set('cerberus.message_date_format', 'F jS, Y \a\t h:i A');
 
-// A list of bucket group ids where clients are not able to respond
+// A list of group ids where clients are not able to respond
 // to tickets. Useful for moving tickets to an archive group or
 // havings tickets used as logs for services, actions, etc.
-
 // An empty array means allow all (default)
 Configure::set('cerberus.readonly.groups.ids', []);

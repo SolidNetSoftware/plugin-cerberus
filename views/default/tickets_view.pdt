@@ -6,7 +6,7 @@
 <div class="col-md-12">
     <?php
     echo $this->Html->ifSet($message);
-    
+
     if(!empty($ticket->id)){
     $this->WidgetClient->clear();
     $this->WidgetClient->setStyleSheet($this->view_dir . 'css/styles.css', ['id' => 'cerberus_styles']);
@@ -30,12 +30,12 @@
 			</tr>
 			<tr>
                 <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.participants'); ?>: </strong></td>
-                <td colspan="3"><?php foreach($ticket->requesters as $participant) : ?> 
-                    <?php 
+                <td colspan="3"><?php foreach($ticket->requesters as $participant) : ?>
+                    <?php
                     $name  = $participant->name;
                     $email = $participant->email;
                     if(!empty($name)) {
-                       $email = " <$email>"; 
+                       $email = " <$email>";
                     }
                     ?>
                     <span class="badge badge-primary"><?php echo $this->Html->_($name); echo $this->Html->_($email); ?></span>
@@ -66,16 +66,16 @@ else
 ?>
                 <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.service'); ?>: </strong></td>
                 <td colspan="1">
-<span class="label btn-<?php echo $this->Html->_($service_class); ?> btn-xs"><?php echo $this->Html->_($service->status); ?></span>
-<a href="<?php echo $this->Html->_($this->base_uri); ?>services/manage/<?php echo $this->Html->_($service->id); ?>/"><?php echo $this->Html->_($service_name); ?></a>
+<span class="badge badge-<?php echo $this->Html->_($service_class); ?>"><?php echo $this->Html->_($service->status); ?></span>
+<a href="<?php echo $this->Html->_($this->client_uri); ?>services/manage/<?php echo $this->Html->_($service->id); ?>/"><?php echo $this->Html->_($service_name); ?></a>
                 </td>
                 <?php endif; ?>
 			</tr>
-            <tr> 
+            <tr>
                 <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.group'); ?>: </strong></td>
                 <td colspan="1"><?php $this->Html->_($ticket->group_name); ?> - <?php $this->Html->_($ticket->bucket_name); ?></td>
                 <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.status'); ?>: </strong></td>
-                <td colspan="1"><span class="label <?php echo $this->Html->_($ticket->status_label); ?>"><?php echo $this->Html->_($ticket->status); ?></span></td>
+                <td colspan="1"><span class="badge <?php echo $this->Html->_($ticket->status_label); ?>"><?php echo $this->Html->_($ticket->status); ?></span></td>
             </tr>
             <tr>
                 <td colspan="1"><strong><?php $this->_('cerberus.client.ticket.created'); ?>: </strong></td>
@@ -89,11 +89,11 @@ else
         <tbody>
             <?php $tr = 0; ?>
             <?php
-                if(isset($ticket->fields)) foreach ($ticket->fields as $field) : 
+                if(isset($ticket->fields)) foreach ($ticket->fields as $field) :
             ?>
             <?php $tr++; if($tr == 0): ?>
             <tr>
-            <?php endif; ?>    
+            <?php endif; ?>
                 <td colspan="2">
                     <strong><?php $this->Html->_($field['name']); ?>: </strong>
                     <?php
@@ -122,7 +122,7 @@ else
                             }
                             else
                             {
-                               echo ', '.$v; 
+                               echo ', '.$v;
                             }
                             $ii++;
                         }
@@ -135,13 +135,13 @@ else
                     }
                     ?>
                 </td>
-            <?php if($tr == 2): ?>    
+            <?php if($tr == 2): ?>
             </tr>
             <?php $tr = 0; endif; ?>
             <?php endforeach; ?>
         </tbody>
     </table>
-  
+
 
 
 
@@ -155,13 +155,13 @@ else
         <p><?php $this->_('cerberus.client.ticket.message.archived'); ?></p>
 	</div>
     <?php else: ?>
-    
+
     <?php $this->Form->create($base_url_tkt_reply . $ticket->mask, array('id' => "response_ticket", 'enctype' => "multipart/form-data")); ?>
     <div class="form-group">
             <?php
             $this->Form->label($this->_('cerberus.client.ticket.message.reply', true), 'message');
             $this->Form->fieldTextarea('message', null, array(
-                'id'          => 'message', 
+                'id'          => 'message',
                 'rows'        => 8,
                 'class'       => 'form-control ticket-message-reply',
                 'required'    => 'required',
@@ -169,7 +169,7 @@ else
             ));
             ?>
     </div>
-    
+
     <div id="file_attachment" class="form-group" style="width: 40%; float: left">
         <?php
         $this->Form->fieldFile('attachments[]', array(
@@ -201,8 +201,8 @@ else
 
 
     <div class="ticketmsgs">
-    <?php 
-        foreach ($messages as $num=>$reply) : 
+    <?php
+        foreach ($messages as $num=>$reply) :
     ?>
 
 
@@ -215,16 +215,16 @@ else
             <?php else: ?>
             <span class="badge badge-secondary">Client</span> &nbsp;
             <?php echo $this->Html->safe($reply->headers->from); ?>
-            <?php endif; ?> 
+            <?php endif; ?>
                 <div style="float:right">
                 <?php echo $this->Date->cast($this->Html->ifSet($reply->created), Configure::get('cerberus.message_date_format')); ?>
                 </div>
-            </div>        
-        </div>  
-        <?php   
+            </div>
+        </div>
+        <?php
         // Show attachments
         if (!empty($reply->attachments)) {
-        ?>      
+        ?>
         <div class="col-md-12 attachments<?php echo ($this->Html->ifSet($reply->worker_id) != false ? ' staff' : '');?>">
             <div class="row">
                 <div class="col-md-4">
@@ -248,23 +248,23 @@ else
         </div>
         <?php
         }
-        ?> 
+        ?>
         <div class="col-md-12 response<?php echo ($this->Html->ifSet($reply->worker_id) != false ? ' staff' : '');?>">
             <div class="ticket-message">
 <?php echo $this->Html->hyperlink($this->Html->safe($this->Html->ifSet($reply->content))); ?>
                 </div>
-            </div>  
+            </div>
         </div>
 
 
     <?php endforeach; ?>
     </div>
-    
+
     <?php
     $this->WidgetClient->endBody();
     $this->WidgetClient->end();
     ?>
-    
+
 </div>
 <div id="close-ticket" class="modal fade" tabindex="-1" role="dialog">
   <div class="modal-dialog" role="document">
@@ -299,7 +299,7 @@ else
             $('#response_ticket button[data-modal="confirm"]').removeAttr("data-modal");
             $('#response_ticket button[value="close"]').click();
         });
-    }); 
+    });
 </script>
 <script>
     $(document).ready(function(){

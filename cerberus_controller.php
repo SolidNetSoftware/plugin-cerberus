@@ -89,9 +89,9 @@ class CerberusController extends AppController
 
     protected function status_to_label($status)
     {
-        if     ($status == 'open')      return 'label-success';
-        else if($status == 'waiting')   return 'label-danger';
-        else                            return 'label-default';
+        if     ($status == 'open')      return 'badge-success';
+        else if($status == 'waiting')   return 'badge-danger';
+        else                            return 'badge-secondary';
     }
 
     protected function human_filesize($size, $precision = 2)

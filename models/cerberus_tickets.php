@@ -33,7 +33,7 @@ class CerberusTickets extends CerberusModel {
         if($order == 'desc') $orderBy = "-"; // DESC
 
         $query = http_build_query([
-            'q'         => "ticket.id:$ticket_id limit:".PHP_INT_MAX." sort:${orderBy}created",
+            'q'         => "ticket.id:$ticket_id limit:".PHP_INT_MAX." sort:{$orderBy}created",
             'expand'    =>  $expand
         ]);
 

@@ -86,6 +86,7 @@ $lang['cerberus.time_since.minute'] = '%1$s min'; // %1$s is the number of minut
 
 // Client Area View Ticket
 $lang['cerberus.client.ticket.message.no-org']          = 'Helpdesk has not been setup for your account. Missing organization id.';
+$lang['cerberus.client.ticket.message.no-dept']         = 'Unable to locate helpdesk department in blesta -- verify if department exists.';
 $lang['cerberus.client.ticket.message.404']             = 'Unable to view ticket %s';
 $lang['cerberus.client.ticket.header']                  = 'Ticket';
 $lang['cerberus.client.ticket.tab.info']                = 'Ticket Information';

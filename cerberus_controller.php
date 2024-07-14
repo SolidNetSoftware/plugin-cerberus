@@ -124,8 +124,8 @@ class CerberusController extends AppController
         $hour = 3600; // seconds in an hour
 
         $days_since = floor($time/$day); // Number of days since
-        $hours_since = ($time/$hour)%24; // Number of hours since
-        $mins_since = ($time/60)%60; // Number of mins since
+        $hours_since = (int)($time/$hour)%24; // Number of hours since
+        $mins_since = (int)($time/60)%60; // Number of mins since
 
         // Set the time language
         $days_since_lang = ($days_since > 0 ? Language::_("cerberus.time_since.day", true, $days_since) : "");

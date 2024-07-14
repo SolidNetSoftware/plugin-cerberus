@@ -304,6 +304,17 @@ class Tickets extends CerberusController
             return;
         }
 
+        // Verify a blesta department has been created for this ticket
+        $this->CerberusDepartments->group = $ticket->results[0]->group_id;
+        $this->CerberusDepartments->bucket = $ticket->results[0]->bucket_id;
+        $blesta_department = $this->CerberusDepartments->get();
+        if(!isset($blesta_department->id))
+        {
+            $this->flashMessage('error', Language::_('cerberus.client.ticket.message.no-dept', true));
+            $this->redirect($this->getURL(self::PLUGIN_BASE_TKT_ERROR));
+            return;
+        }
+
         $order_by = ($this->CerberusConfig->get()->sort_descending) ? 'desc' : 'asc';
         $messages = $this->CerberusTickets->getTicketMessages($ticket->results[0]->id, true, $order_by);
         foreach($messages->results as $key => $value)
@@ -314,10 +325,7 @@ class Tickets extends CerberusController
         $ticket->results[0]->status_label = $this->status_to_label($ticket->results[0]->status);
         $fields = $this->CerberusTickets->getCustomFields();
 
-        $this->CerberusDepartments->group = $ticket->results[0]->group_id;
-        $this->CerberusDepartments->bucket = $ticket->results[0]->bucket_id;
-        $show_fields = json_decode($this->CerberusDepartments->get()->custom_fields, true);
-
+        $show_fields = json_decode($blesta_department->custom_fields, true);
         foreach($fields->results as $field)
         {
             if( isset($show_fields[$field->id]) && /*$show_fields[$field->id] &&*/

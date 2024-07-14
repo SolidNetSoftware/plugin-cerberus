@@ -64,7 +64,7 @@ class AdminDepartments extends CerberusController
             'ignoreFields' => $this->ignoreFields,
             'groups_buckets' => $this->CerberusGroups->getAllBuckets(),
             'custom_fields' => $this->CerberusTickets->getCustomFields(),
-            'savedValues' => null,
+            'savedValues' => new stdClass(),
             'widgetText' => Language::_('cerberus.admin.departments.button.create', true)
         ));
         $this->render('admin_departments_crud');

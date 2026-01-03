@@ -286,19 +286,20 @@ class Tickets extends CerberusController
 
     private function createSafeFileName(string $filename) : string
     {
+        // Strip all whitespaces first
+        $temp = trim($filename);
+
         // Replace all spacing (unicode included) with underscores
         // On Apple's OSX devices, some screenshots files include
         // unicode characters like dash and spaces and contain
         // characters like \\xE2 and \\x80 and \\xAF
-        $temp = preg_replace('/\s+/u', '_', $filename);
+        $temp = preg_replace('/\s+/u', '_', $temp);
 
         // Remove anything that is NOT alphanumeric, a dot, a dash,
         // or an underscore and replace it with an underscore. This
         // is a failsafe to ensure any weird symbols, emojis, or
         // shell-unsafe characters are stripped.
-        $clean = preg_replace('/[^a-zA-Z0-9.\-_]/', '', $temp);
-
-        return $clean_filename;
+        return preg_replace('/[^a-zA-Z0-9.\-_]/', '_', $temp);
     }
 
     public function view()
